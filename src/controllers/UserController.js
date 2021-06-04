@@ -106,36 +106,54 @@ class UserController {
   * @memberof UserController
   */
    static async confirmEmail(req, res) {
-    const { token, id, resend } = req.query;
-    if (resend) {
+      const { token, id, resend } = req.query;
+
+      if (resend) {
       const user = await models.User.findOne({ where: { id } });
+
 
       if (!user) return utils.errorStat(res, 400, 'Unable to send verification email');
-  
-      return utils.successStat(res, 200, 'message', 'Verification link has been sent to your email');
-    }
-    try {
-      const verify = await auth.verifyUserToken(token, (err, decoded) => decoded);
-      await models.User.update({ isVerified: true }, { where: { id: verify.id } });
-      const user = await models.User.findOne({ where: { id } });
 
       const message = {};
-      message.subject = 'EMAIL VERIFIED';
-
+      const verifyLink = `${process.env.APP_URL}/api/v1/users/confirmEmail?token=${token}&id=${user.id}`
+      message.subject = 'EMAIL CONFIRMATION';
       message.html = `
-        <p>Welcome aboard!</p>
-        <p>Your email have been successfully verified. Kindly proceed to your account and update your profile</p>
+        <p>Hello!</p>
+        <p>You have an account as a ${type} on the Volunteerspark platform</p>
+        <p>We are so excited to have you and can't wait to get you connected with other organisations on out network.</p>
+        <p>kindly click the link below to verify your email <p>${verifyLink}</p></p>
         <br />
         <strong>VolunteerSpark team</strong>
       `; ;
-  
+    
+    // implement emasil service
       await EmailService.sendEmail(user.email, message)
+    
+      return utils.successStat(res, 200, 'message', 'Verification link has been sent to your email');
+      }
+      try {
+        const verify = await auth.verifyUserToken(token, (err, decoded) => decoded);
 
-      return utils.successStat(res, 200, 'message', 'Email verified successfully');
-    } catch (err) {
-      return utils.errorStat(res, 400, 'Unable to verifiy email');
+        await models.User.update({ isVerified: true }, { where: { id: verify.id } });
+        const user = await models.User.findOne({ where: { id } });
+
+        const message = {};
+        message.subject = 'EMAIL VERIFIED';
+
+        message.html = `
+          <p>Welcome aboard!</p>
+          <p>Your email have been successfully verified. Kindly proceed to your account and update your profile</p>
+          <br />
+          <strong>VolunteerSpark team</strong>
+        `; ;
+    
+        await EmailService.sendEmail(user.email, message)
+
+        return utils.successStat(res, 200, 'message', 'Email verified successfully');
+      } catch (err) {
+        return utils.errorStat(res, 400, 'Unable to verifiy email');
+      }
     }
-  }
 
   /**
    * @static
@@ -177,7 +195,10 @@ class UserController {
     const user = await models.User.findOne({
       where: { id: user_id },
     });
-    if (!profile) return utils.errorStat(res, 401, 'Profile not found');
+    if (!user) return utils.errorStat(res, 401, 'Profile not found');
+    if (user.role !== 'super_admin') {
+      return utils.errorStat(res, 403, 'Unauthorized, admin only!');
+    }
     return utils.successStat(res, 200, 'user', {
       email: user.email,
       firstname: user.firstname, 
@@ -236,8 +257,41 @@ class UserController {
       },
     });
 
-    return utils.successStat(res, 200, 'profile', updateResponse);
+    return utils.successStat(res, 200, 'profile', {
+      firstname: updateResponse.firstname, 
+      lastname: updateResponse.lastname, 
+      email: updateResponse.email,
+      phonenumber: updateResponse.phonenumber,
+      country: updateResponse.country,
+      state: updateResponse.state,
+      city: updateResponse.city,
+      type: updateResponse.type,
+    });
   }
+
+    /**
+    * @static
+    * @description Updates the user password in the database
+    * @param {Object} req - Request object
+    * @param {Object} res - Response object
+    * @returns {Object} Object containing either a success or error message.
+    * @memberof UserController
+    */
+     static async resetPassword(req, res) {
+      const { oldPassword, newPassword } = req.body;
+      const { user_id } = req.params;
+      const { id } = req.user;
+      const user = await models.User.findOne({ where: { id: user_id } });
+      if (!user) return utils.errorStat(res, 404, 'No user found');
+      if (parseInt(user_id, 10) !== id) {
+        return utils.errorStat(res, 403, 'Unauthorized');
+      }
+      const comparedPassword = auth.comparePassword(oldPassword, user.password)
+      if (!comparedPassword) return utils.errorStat(res, 404, 'Old password incorrect');
+      const hashedPassword = auth.hashPassword(newPassword);
+      await models.User.update({ password: hashedPassword }, { where: { id: user.id } });
+      return utils.successStat(res, 200, 'message', 'Success, Password Reset Successfully');
+    }
 }
 
 export default UserController;
