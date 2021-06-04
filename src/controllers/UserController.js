@@ -195,7 +195,10 @@ class UserController {
     const user = await models.User.findOne({
       where: { id: user_id },
     });
-    if (!profile) return utils.errorStat(res, 401, 'Profile not found');
+    if (!user) return utils.errorStat(res, 401, 'Profile not found');
+    if (user.role !== 'super_admin') {
+      return utils.errorStat(res, 403, 'Unauthorized, admin only!');
+    }
     return utils.successStat(res, 200, 'user', {
       email: user.email,
       firstname: user.firstname, 
@@ -277,8 +280,12 @@ class UserController {
      static async resetPassword(req, res) {
       const { oldPassword, newPassword } = req.body;
       const { user_id } = req.params;
+      const { id } = req.user;
       const user = await models.User.findOne({ where: { id: user_id } });
       if (!user) return utils.errorStat(res, 404, 'No user found');
+      if (parseInt(user_id, 10) !== id) {
+        return utils.errorStat(res, 403, 'Unauthorized');
+      }
       const comparedPassword = auth.comparePassword(oldPassword, user.password)
       if (!comparedPassword) return utils.errorStat(res, 404, 'Old password incorrect');
       const hashedPassword = auth.hashPassword(newPassword);
