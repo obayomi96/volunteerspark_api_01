@@ -189,6 +189,7 @@ class UserController {
    */
   static async fetchProfile(req, res) {
     const { user_id } = req.params;
+    const adminUser = req.user;
     if (!user_id) {
       return utils.errorStat(res, 400, 'user_id is required');
     }
@@ -196,7 +197,7 @@ class UserController {
       where: { id: user_id },
     });
     if (!user) return utils.errorStat(res, 401, 'Profile not found');
-    if (user.role !== 'super_admin') {
+    if (adminUser.role !== 'super_admin') {
       return utils.errorStat(res, 403, 'Unauthorized, admin only!');
     }
     return utils.successStat(res, 200, 'user', {
@@ -292,6 +293,73 @@ class UserController {
       await models.User.update({ password: hashedPassword }, { where: { id: user.id } });
       return utils.successStat(res, 200, 'message', 'Success, Password Reset Successfully');
     }
+
+  //    /**
+  //  * @static
+  //  * @description Allows a admin to fetch all profiles
+  //  * @param {Object} req - Request object
+  //  * @param {Object} res - Response object
+  //  * @returns {Object} All users
+  //  * @memberof UserController
+  //  */
+  // static async fetchUsers(req, res) {
+  //   const adminUser = req.user;
+  //   if (adminUser.role !== 'super_admin') {
+  //     return utils.errorStat(res, 403, 'Unauthorized, admin only!');
+  //   }
+  //   const users = await models.User.findAll();
+  //   return console.log('users', users)
+  //   if (!dataValues) return utils.errorStat(res, 401, 'Users not found');
+  //   const data = dataValues.map((user) => user)
+  //   console.log('USSS', user)
+  //   console.log('USdaaa', data)
+  //   return utils.successStat(res, 200, 'users', {
+  //     id: user.id,
+  //     email: users.email,
+  //     firstname: users.firstname, 
+  //     lastname: users.lastname, 
+  //     phonenumber: users.phonenumber,
+  //     country: users.country,
+  //     state: users.state,
+  //     city: users.city,
+  //     type: users.type,
+  //   });
+  // }
+
+  //   /**
+  // * @static
+  // * @description Allows a user to sign in with social accounts
+  // * @param {Object} req - Request object
+  // * @param {Object} res - Response object
+  // * @param {function} next next function to be called
+  // * @returns {Object} object containing user data and access Token
+  // * @memberof UserController
+  // */
+  // static async socialSignin(req, res) {
+  //   const userDetails = req.user;
+  //   const firstname = userDetails.displayName.split(' ')[0];
+  //   const lastname = userDetails.displayName.split(' ')[1];
+  //   const email = userDetails.emails[0].value;
+
+  //   const newUser = await models.User.findOrCreate({
+  //     where: { email },
+  //     defaults: {
+  //       firstname,
+  //       lastname,
+  //       email,
+  //       password: 'null',
+  //       isVerified: true,
+  //     }
+  //   });
+  //   const token = auth.generateToken({
+  //     id: newUser.id,
+  //     email: userDetails.email
+  //   });
+
+  //   return res.redirect(`${process.env.FRONT_END_URL}?token=${token}&user=${JSON.stringify({
+  //     firstname, lastname, email, isVerified
+  //   })}`);
+  // }
 }
 
 export default UserController;
