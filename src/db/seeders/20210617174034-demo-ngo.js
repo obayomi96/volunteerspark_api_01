@@ -1,26 +1,82 @@
 'use strict';
+import bcrypt from 'bcrypt';
+// import faker from 'faker';
+
+const saltRounds = 10;
+
+const password = bcrypt.hashSync('Password123', saltRounds);
 
 module.exports = {
-  up: (queryInterface, Sequelize) => {
-    /*
-      Add altering commands here.
-      Return a promise to correctly handle asynchronicity.
-
-      Example:
-      return queryInterface.bulkInsert('People', [{
-        name: 'John Doe',
-        isBetaMember: false
-      }], {});
-    */
-  },
-
-  down: (queryInterface, Sequelize) => {
-    /*
-      Add reverting commands here.
-      Return a promise to correctly handle asynchronicity.
-
-      Example:
-      return queryInterface.bulkDelete('People', null, {});
-    */
-  }
+  up: (queryInterface) =>
+    queryInterface.bulkInsert('Ngos', [
+      {
+        name: 'New ngo',
+        logo: 'logo',
+        about: '08125742533',
+        email: 'seun@mail.com',
+        isVerified: true,
+        password,
+        type: 'Non-Profit',
+        country: 'Nigeria',
+        state: 'Lagos',
+        city: 'lekki',
+        address: '',
+        industry: '',
+        website: '',
+        twitter: '',
+        instagram: '',
+        linkedin: '',
+        website: '',
+        verificationDocument: '',
+        sdgs: '',
+        interestArea: '',
+        nature: '',
+        beneficiaries: 300,
+        beneficiaryDemographic: 'Adults',
+        pastworkProjectName: 'Edustripe, Appzone',
+        pastworkStartDate: new Date(),
+        pastwordEndDate: new Date(),
+        pastwordDuration:  '3 years',
+        pastwordAbout: 'about my past work',
+        pastworkBeneficiariesReached: 30,
+        pastworkNumberOfVoluntweers: 67,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'second ngo',
+        logo: 'logo',
+        about: '08125742533',
+        email: 'seun@mail.com',
+        isVerified: true,
+        password,
+        type: 'Profit',
+        country: 'Nigeria',
+        state: 'Lagos',
+        city: 'lekki',
+        address: '',
+        industry: '',
+        website: '',
+        twitter: '',
+        instagram: '',
+        linkedin: '',
+        website: '',
+        verificationDocument: '',
+        sdgs: '',
+        interestArea: '',
+        nature: '',
+        beneficiaries: 300,
+        beneficiaryDemographic: 'Adults',
+        pastworkProjectName: 'Edustripe, Appzone',
+        pastworkStartDate: new Date(),
+        pastwordEndDate: new Date(),
+        pastwordDuration: '2 years',
+        pastwordAbout: 'about my past work',
+        pastworkBeneficiariesReached: 30,
+        pastworkNumberOfVoluntweers: 67,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]),
+  down: (queryInterface) => queryInterface.dropAllTables(),
 };

@@ -8,7 +8,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      mame: {
+      name: {
         type: Sequelize.STRING
       },
       logo: {
@@ -17,10 +17,19 @@ module.exports = {
       about: {
         type: Sequelize.TEXT
       },
+      password: {
+        type: Sequelize.STRING
+      },
+      isVerified: {
+        type: Sequelize.BOOLEAN
+      },
       type: {
         type: Sequelize.STRING
       },
       industry: {
+        type: Sequelize.STRING
+      },
+      nature: {
         type: Sequelize.STRING
       },
       country: {
@@ -52,6 +61,42 @@ module.exports = {
       },
       twitter: {
         type: Sequelize.STRING
+      },
+      verificationDocument: {
+        type: Sequelize.STRING
+      },
+      sdgs: {
+        type: Sequelize.STRING
+      },
+      interestArea: {
+        type: Sequelize.STRING
+      },
+      beneficiaries: {
+        type: Sequelize.INTEGER
+      },
+      beneficiaryDemographic: {
+        type: Sequelize.STRING
+      },
+      pastworkProjectName: {
+        type: Sequelize.STRING
+      },
+      pastworkStartDate: {
+        type: Sequelize.DATE
+      },
+      pastwordEndDate: {
+        type: Sequelize.DATE
+      },
+      pastwordDuration: {
+        type: Sequelize.STRING
+      },
+      pastwordAbout: {
+        type: Sequelize.TEXT
+      },
+      pastworkBeneficiariesReached: {
+        type: Sequelize.INTEGER
+      },
+      pastworkNumberOfVoluntweers: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
